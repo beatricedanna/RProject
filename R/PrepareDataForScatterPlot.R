@@ -40,7 +40,7 @@ PrepareDataForScatterPlot <- function(merged_dt, genes_gr) {
     avg_atac_signal = rowMeans(.SD[, atac_cols, with = FALSE]) # Column 3: Average (all cells) accessibility for each gene
   )]
 
-  cat("Adding chromosome information...\n")
+  cat("total_genes_in_expression_data <- nrow(gene_expression_dt)Adding chromosome information...\n")
 
   # Create a data table matching each gene to its chromosome
   gene_location_map <- as.data.table(genes_gr)[, .(gene_id, seqnames)] # Extract "gene_id" and "seqnames" (chromosome name) columns from the gene GRanges object

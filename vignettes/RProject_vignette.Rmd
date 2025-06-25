@@ -152,6 +152,10 @@ annotated_peaks_gr_final <- AnnotatePeaks(peaks_gr, full_gtf_gr)
 # To execute the function (Step 6):
 protein_coding_gex <- FinalizeGeneExpressionGRanges(genes_gr, full_gtf_gr)
 
+# DEBUG to standardize chromosome annotation (try 1)
+library(GenomeInfoDb)
+seqlevelsStyle(protein_coding_gex) <- "UCSC"
+
 # To execute the function (Step7.1):
 final_normalized_gex_dt <- NormalizeCPM(gene_expression_dt)
 final_normalized_atac_dt <- NormalizeCPM(atac_seq_dt)
