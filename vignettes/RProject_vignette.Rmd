@@ -1,0 +1,197 @@
+---
+title: "RProject_vignette"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{RProject_vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+This vignette explains how to use RProject package. 
+RProject package goal is to analyse Multiomics data and perform the following functions:
+
+*Step 1: Matrix Conversion*
+**Function -> SparseToDataTable**
+ - Use the RProject package to convert the sparse matrix into a full matrix and save the result as a data.table object
+
+*Step 2: Split Gene Expression and ATAC-seq Data*
+**Function -> ExtractData**
+ - From the data.table object, separate:
+   - Gene expression data (rows labelled with Ensembl gene IDs)
+   - ATAC-seq peak data (rows labelled with genomic coordinates)
+   
+*Step 3: Summarize Data*
+- For each dataset (expression and peaks), compute the column-wise sum to produce:
+     *Step 3.1* 
+     **Function -> TotalExpressionPerGene**
+   - A single vector of total expression per gene
+     *Step 3.2* 
+     **Function -> TotalAccessibilityPerPeak**
+   - A single vector of total chromatin accessibility per peak region
+
+*Step 4: Create Genomic Ranges*
+**Function -> CreateGenomicRanges**
+- Convert both the summarized gene expression and peak data into GenomicRanges objects and add the summarized data as metadata to their respective GenomicRanges.
+
+*Step 5: Gene Annotation for ATACseq data*
+**Function -> AnnotatePeaks**
+- Using the annotation file Homo_sapiens.GRCh38.114.gtf.gz:
+   - Create a GenomicRanges object only for protein-coding genes and only for gene features.
+   - Remap the ATAC-seq GenomicRanges to this object and attach the summarized peak data from step 4.
+   
+*Step 6: Finalize Expression Data*
+**Function -> FinalizeGeneExpressionGRanges**
+- Subset the expression GenomicRanges, step 4, to include only protein-coding genes and add gene symbol identifiers to the object.
+
+*Step 7: Data Normalization and Integration*
+ *Step 7.1* 
+ **Function -> NormalizeCPM**
+- Normalize both expression and ATAC-seq data using CPM:
+   - Divide each column by the column sum, multiply by 10^6, add a pseudo-count of 1, and apply log2.
+  *Step 7.2* 
+  **Function -> IntegrateAndSummarize**
+- Merge expression and ATAC data based on common genes.
+  *Step 7.3* 
+  **Function -> GenerateSummaryPlot**
+- Provide a summary table of the number of ATAC peaks that could not be merged and a plot of peak intensity distribution chromosome by chromosome. 
+- Provide a summary table of the genes which do not show association with ATAC peaks and plot their expression distribution chromosome by chromosome.
+
+*Step 8: Visualization*
+**Function -> PrepareDataForScatterPlot**
+**Function -> GenerateScatterPlot**
+- Generate a scatter plot using ggplot2:
+   - X-axis: log-transformed expression CPM
+   - Y-axis: log-transformed ATAC CPM
+- Generate a faceted plot from the same data dividing the plot in the 24 chromosomes.
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(RProject)
+```
+
+```{r project code}
+
+library(data.table)
+library(Matrix)
+
+# Load the files
+matrix_file <- system.file("extdata", "matrix.mtx.gz", package = "RProject")
+features_file <- system.file("extdata", "features.tsv.gz", package = "RProject")
+barcodes_file <- system.file("extdata", "barcodes.tsv.gz", package = "RProject")
+
+# Read the files:
+mtx <- readMM(file = matrix_file)
+features <- fread(features_file, header = FALSE)
+barcodes <- fread(barcodes_file, header = FALSE)
+
+# Check of the dimensions:
+cat("Sparse matrix dimension:", dim(mtx)[1], "features x", dim(mtx)[2], "barcodes\n")
+
+# To execute the function (Step 1):
+combined_dt <- SparseToDataTable(mtx, features, barcodes)
+
+# To execute the function (Step 2):
+results <- ExtractData(combined_dt)
+
+# Recall gene_expression_dt and atac_seq_dt:
+gene_expression_dt <- results$gene_expression_dt
+atac_seq_dt <- results$atac_seq_dt
+
+# Check:
+print(gene_expression_dt[1:5, 1:5])
+print(atac_seq_dt[1:5, 1:5])
+
+# To execute the function (Step 3.1):
+gene_vector <- TotalExpressionPerGene(gene_expression_dt)
+
+# To execute the function (Step 3.2):
+peaks_vector <- TotalAccessibilityPerPeak(atac_seq_dt)
+
+# Load the libraries:
+library(GenomicRanges)
+library(ensembldb)
+library(EnsDb.Hsapiens.v86)
+
+# To execute the function (Step 4):
+granges_objects <- CreateGenomicRanges(gene_vector, peaks_vector)
+
+# Assign genes_gr and peaks_gr:
+genes_gr <- granges_objects$genes_gr
+peaks_gr <- granges_objects$peaks_gr
+
+# Check:
+class(genes_gr)
+class(peaks_gr)
+as.data.frame(genes_gr[1:5])
+as.data.frame(peaks_gr[1:5])
+
+# Install BiocManager and others:
+install.packages("BiocManager")
+BiocManager::install("GenomeInfoDb")
+
+# Load the libraries:
+library(rtracklayer)
+library(GenomicRanges)
+library(GenomeInfoDb)
+
+# Load the files:
+gtf_file <- system.file("extdata", "Homo_sapiens.GRCh38.114.gtf.gz", package = "RProject")
+full_gtf_gr <- rtracklayer::import(gtf_file)
+
+# To execute the function (Step 5):
+annotated_peaks_gr_final <- AnnotatePeaks(peaks_gr, full_gtf_gr)
+
+# To execute the function (Step 6):
+protein_coding_gex <- FinalizeGeneExpressionGRanges(genes_gr, full_gtf_gr)
+
+# To execute the function (Step7.1):
+final_normalized_gex_dt <- NormalizeCPM(gene_expression_dt)
+final_normalized_atac_dt <- NormalizeCPM(atac_seq_dt)
+
+# To execute the function (Step 7.2):
+integration_results <- IntegrateAndSummarize(
+  final_normalized_gex_dt,
+  final_normalized_atac_dt,
+  annotated_peaks_gr_final,
+  protein_coding_gex
+  )
+
+# Load the libraries:
+library(ggplot2)
+
+# To execute the function (Step 7.3):
+summary_plots <- GenerateSummaryPlots(
+   annotated_peaks_gr_final,
+   protein_coding_gex,
+   integration_results$unassociated_gene_ids
+  )
+
+# To print the graphs:
+peak_intensity_plot <- summary_plots$peak_intensity_plot
+print(peak_intensity_plot)
+unassociated_gex_plot <- summary_plots$unassociated_gex_plot
+print(unassociated_gex_plot)
+
+# Load the libraries:
+library(gtools)
+
+# Assign merged_data:
+merged_data <- integration_results$merged_data
+
+# To execute the function (Step 8):
+plot_data <- PrepareDataForScatterPlot(merged_data, protein_coding_gex)
+scatter_plots <- GenerateScatterPlots(plot_data)
+
+# To print the graphs:
+print(scatter_plots$total_plot)
+print(scatter_plots$faceted_plot)
+
+```

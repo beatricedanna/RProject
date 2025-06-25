@@ -25,7 +25,7 @@ utils::globalVariables(c(".SD", "nearest_gene_id"))
 #'   \item{unassociated_genes_summary}{A data.table summarizing total genes, genes with associated peaks, and genes without associated peaks.}
 #'   \item{unassociated_gene_ids}{A vector of protein-coding gene IDs (from finalized_expression_gr) with no associated peaks.}
 #' }
-
+#' @export
 IntegrateAndSummarize <- function(normalized_gex_dt, normalized_atac_dt, annotated_peaks_gr_final, finalized_expression_gr) {
 
   # Assign "chr:start-end" style names to each peak in annotated_peaks_gr_final

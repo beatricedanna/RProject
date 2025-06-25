@@ -13,9 +13,6 @@
 # features_file <- "features.tsv.gz"
 # barcodes_file <- "barcodes.tsv.gz"
 
-# To execute the function:
-# combined_dt <- SparseToDataTable(mtx)
-
 # Read the files:
 # mtx <- readMM(file = matrix_file)
 # features <- fread(features_file, header = FALSE)
@@ -25,7 +22,6 @@
 # cat("Sparse matrix dimension:", dim(mtx)[1], "features x", dim(mtx)[2], "barcodes\n")
 
 # To execute the function:
-# source("~/Desktop/functions/SparseToDataTable.R")
 # combined_dt <- SparseToDataTable(mtx, features, barcodes)
 
 #' SparseToDataTable

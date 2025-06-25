@@ -3,8 +3,8 @@
 # results <- ExtractData(combined_dt)
 
 # Recall gene_expression_dt and atac_seq_dt:
-# gene_expression_dt <- results$gene_expression
-# atac_seq_dt <- results$atac_seq
+# gene_expression_dt <- results$gene_expression_dt
+# atac_seq_dt <- results$atac_seq_dt
 
 # Check:
 # print(gene_expression_dt[1:5, 1:5])
@@ -34,7 +34,7 @@ ExtractData <- function (combined_dt){
   cat("ATAC-seq data:", nrow(atac_seq_dt), "peaks x", ncol(atac_seq_dt)-1, "cells\n") #ncol-1 because one column is for the ids
 
   return(list(
-    gene_expression_dt,
-    atac_seq_dt
+    gene_expression_dt = gene_expression_dt,
+    atac_seq_dt = atac_seq_dt
   ))
 }

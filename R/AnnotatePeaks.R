@@ -10,7 +10,7 @@
 # library(GenomeInfoDb)
 
 # Load the files:
-# gtf_file <- "Homo_sapiens.GRCh38.114.gtf.gz"
+# gtf_file <- system.file("extdata", "Homo_sapiens.GRCh38.114.gtf.gz", package = "RProject")
 # full_gtf_gr <- rtracklayer::import(gtf_file)
 
 # To execute the function:
