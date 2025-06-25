@@ -39,8 +39,6 @@
 #' @return A data.table with columns: feature_id, cell_barcode, value.
 #'
 #' @export
-#'
-
 SparseToDataTable <- function (mtx, features, barcodes){
   if (nrow(mtx) == nrow(barcodes)) {
     cat("Matrix found with the wrong orientation -> Transposition in progres...\n")

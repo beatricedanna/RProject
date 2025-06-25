@@ -2,6 +2,7 @@
 
 export(ExtractData)
 export(SparseToDataTable)
+export(TotalAccessibilityPerPeak)
 importFrom(data.table,"%like%")
 importFrom(data.table,as.data.table)
 importFrom(utils,head)
