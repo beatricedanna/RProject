@@ -12,5 +12,9 @@ RoxygenNote: 7.3.2
 Imports:
     data.table,
     utils,
+    EnsDb.Hsapiens.v86,
+    GenomicFeatures,
+    GenomicRanges,
+    S4Vectors
 URL:https://github.com/beatricedanna/RProject.git
 BugReports: https://github.com/beatricedanna/RProject/issues

@@ -19,8 +19,11 @@ utils::globalVariables("feature_id")
 #' @importFrom data.table %like%
 #' @param combined_dt A combined data table containing feature_id, cell_barcodes and values of both peaks and gene expression.
 #'
-#' @return Two separate data table, one for gene expression data and one for atac seq data.
-#'
+#' @return A list with two data.tables:
+#' \describe{
+#'   \item{gene_expression_dt}{Contains rows with `feature_id` starting with "ENSG", representing gene expression data}
+#'   \item{atac_seq_dt}{Contains rows with `feature_id` starting with "chr", representing chromatin accessibility data}
+#' }
 #' @export
 ExtractData <- function (combined_dt){
   # Subset creation
