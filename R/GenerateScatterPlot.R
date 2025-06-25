@@ -9,6 +9,7 @@
 # To print the graphs:
 # print(scatter_plots$total_plot)
 # print(scatter_plots$faceted_plot)
+#
 
 if (getRversion() >= "2.15.1")  utils::globalVariables(c(
   "avg_gex_signal", "avg_atac_signal", "gene_id", "chromosome"
