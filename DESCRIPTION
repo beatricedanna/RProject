@@ -1,4 +1,4 @@
-Package: nomeDelTuoPacchetto
+Package: RProject
 Type: Package
 Title: Multiomics analysis
 Version: 0.1.0
@@ -11,6 +11,6 @@ LazyData: true
 RoxygenNote: 7.3.2
 Imports:
     data.table,
-    utils
-URL: https://github.com/beatricedanna/nomeDelTuoPacchetto
-BugReports: https://github.com/beatricedanna/nomeDelTuoPacchetto/issues
+    utils,
+URL:https://github.com/beatricedanna/RProject.git
+BugReports: https://github.com/beatricedanna/RProject/issues

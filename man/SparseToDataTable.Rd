@@ -4,10 +4,14 @@
 \alias{SparseToDataTable}
 \title{SparseToDataTable}
 \usage{
-SparseToDataTable(mtx)
+SparseToDataTable(mtx, features, barcodes)
 }
 \arguments{
 \item{mtx}{A sparse matrix (e.g., class dgTMatrix or dgCMatrix).}
+
+\item{features}{Gene ids or chromosome ids.}
+
+\item{barcodes}{Cell barcodes for identification.}
 }
 \value{
 A data.table with columns: feature_id, cell_barcode, value.
