@@ -77,7 +77,7 @@ knitr::opts_chunk$set(
 library(RProject)
 ```
 
-```{r project code}
+```{r make-scatter-plot, fig.width=12, fig.height=10}
 
 library(data.table)
 library(Matrix)
@@ -133,9 +133,6 @@ class(peaks_gr)
 as.data.frame(genes_gr[1:5])
 as.data.frame(peaks_gr[1:5])
 
-# Install BiocManager and others:
-install.packages("BiocManager")
-BiocManager::install("GenomeInfoDb")
 
 # Load the libraries:
 library(rtracklayer)
@@ -152,10 +149,6 @@ annotated_peaks_gr_final <- AnnotatePeaks(peaks_gr, full_gtf_gr)
 # To execute the function (Step 6):
 protein_coding_gex <- FinalizeGeneExpressionGRanges(genes_gr, full_gtf_gr)
 
-# DEBUG to standardize chromosome annotation (try 1)
-library(GenomeInfoDb)
-seqlevelsStyle(protein_coding_gex) <- "UCSC"
-
 # To execute the function (Step7.1):
 final_normalized_gex_dt <- NormalizeCPM(gene_expression_dt)
 final_normalized_atac_dt <- NormalizeCPM(atac_seq_dt)
@@ -167,6 +160,47 @@ integration_results <- IntegrateAndSummarize(
   annotated_peaks_gr_final,
   protein_coding_gex
   )
+
+###DEBUG###
+
+cat("FILTER AND STANDARDIZATION OF CHROMOSOME NAMES\n\n")
+
+cat("--- Peaks ---\n")
+cat("Initial number of peaks:", length(annotated_peaks_gr_final), "\n")
+
+# Standardization of chromosome names
+seqlevelsStyle(annotated_peaks_gr_final) <- "UCSC"
+
+# Define standard chromosomes
+standard_chroms <- paste0("chr", c(1:22, "X", "Y", "M"))
+
+# Keep only standard chromosome
+peaks_gr_filtrato <- annotated_peaks_gr_final[seqnames(annotated_peaks_gr_final) %in% standard_chroms, ]
+
+# Dimnesion after filtering
+cat("Peaks number after:", length(peaks_gr_filtrato), "\n")
+
+
+cat("\n--- Genes ---\n")
+cat("Initial number of genes:", length(protein_coding_gex), "\n")
+
+# Standardization of chromosome names
+# Warning 'cannot switch' will appear but it will be solved in the following steps
+seqlevelsStyle(protein_coding_gex) <- "UCSC"
+
+# Keep only standard chromosome
+genes_gr_filtrato <- protein_coding_gex[seqnames(protein_coding_gex) %in% standard_chroms, ]
+
+# Dimnesion after filtering
+cat("Number of genes after:", length(genes_gr_filtrato), "\n")
+
+cat("\nUnique chromosomes in peaks:\n")
+print(unique(seqnames(peaks_gr_filtrato)))
+
+cat("\nUnique chromosomes in genes:\n")
+print(unique(seqnames(genes_gr_filtrato)))
+
+###END DEBUG###
 
 # Load the libraries:
 library(ggplot2)

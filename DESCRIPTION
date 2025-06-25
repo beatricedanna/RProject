@@ -24,6 +24,8 @@ Imports:
 URL: https://github.com/beatricedanna/RProject.git
 BugReports: https://github.com/beatricedanna/RProject/issues
 Suggests: 
+    Matrix,
+    ensembldb,
     knitr,
     rmarkdown
 VignetteBuilder: knitr
