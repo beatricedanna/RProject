@@ -18,6 +18,8 @@ Imports:
     S4Vectors,
     GenomeInfoDb,
     rtracklayer,
-    stats
+    stats,
+    ggplot2,
+    gtools
 URL:https://github.com/beatricedanna/RProject.git
 BugReports: https://github.com/beatricedanna/RProject/issues
