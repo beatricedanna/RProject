@@ -3,6 +3,7 @@
 export(AnnotatePeaks)
 export(CreateGenomicRanges)
 export(ExtractData)
+export(FinalizeGeneExpressionGRanges)
 export(SparseToDataTable)
 export(TotalAccessibilityPerPeak)
 export(TotalExpressionPerGene)
