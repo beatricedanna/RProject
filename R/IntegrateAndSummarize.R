@@ -5,6 +5,13 @@ IntegrateAndSummarize <- function(gex_dt, atac_dt, peaks_gr, genes_gr) {
   if (!require("data.table", quietly = TRUE)) stop("Package 'data.table' non trovato.")
   if (!require("GenomicRanges", quietly = TRUE)) stop("Package 'GenomicRanges' non trovato.")
 
+  # Assign "chr:start-end" style names to each peak in annotated_peaks_gr_final
+  names(annotated_peaks_gr_final) <- paste0(
+    seqnames(annotated_peaks_gr_final), ":",
+    start(annotated_peaks_gr_final), "-",
+    end(annotated_peaks_gr_final)
+  )
+
   cat("--- Inizio Integrazione (Garantendo Coerenza ID) ---\n")
 
   # --- INIZIO CORREZIONE FONDAMENTALE ---
