@@ -52,13 +52,15 @@ GenerateSummaryPlots <- function(annotated_peaks_gr, finalized_expression_gr, un
     theme_bw() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
 
-  # --- 2. Grafico per l'Espressione dei Geni non Associati ---
-  cat("2. Creazione del grafico di distribuzione dell'espressione per i geni non associati...\n")
+  cat("Plot of gene expression distribution of genes without associated peaks...\n")
 
-  unassociated_genes_gr <- finalized_expression_gr[finalized_expression_gr$gene_id %in% unassociated_gene_ids, ]
+  valid_unassociated_ids <- intersect(unassociated_gene_ids, finalized_expression_gr$gene_id) # Find intersection between unassociated genes and genes present in finalized_expression_gr
+  unassociated_genes_gr <- finalized_expression_gr[finalized_expression_gr$gene_id %in% valid_unassociated_ids, ] #Create a subset using only valid ids, preventing addition of NA
+
   gex_plot_df <- as.data.frame(unassociated_genes_gr)
   gex_plot_df$log10_total_expression <- log10(gex_plot_df$total_expression + 1)
-  gex_plot_df$seqnames <- factor(gex_plot_df$seqnames, levels = chrom_order)
+  gex_plot_df$seqnames <- factor(gex_plot_df$seqnames, levels = chrom_order) # Chromosome order
+  gex_plot_df <- gex_plot_df[!is.na(gex_plot_df$seqnames), ] # Delete all NA if existing
 
   plot_unassociated_gex <- ggplot(gex_plot_df, aes(x = seqnames, y = log10_total_expression, fill = seqnames)) +
     geom_boxplot(outlier.shape = NA) +

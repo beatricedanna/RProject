@@ -30,7 +30,7 @@ FinalizeGeneExpressionGRanges <- function(genes_gr, full_gtf_gr) {
 
   cat ( "Total of ", length(protein_coding_expression_gr), "protein-coding genes.\n")
 
-  cat("3. Adding gene IDs...\n")
+  cat("Adding gene IDs...\n")
 
   matched_indices <- match(
     mcols(protein_coding_expression_gr)$gene_id,

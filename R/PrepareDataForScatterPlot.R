@@ -31,7 +31,7 @@ PrepareDataForScatterPlot <- function(merged_dt, genes_gr) {
   gex_cols <- names(merged_dt)[grep("\\.x$", names(merged_dt))]
   atac_cols <- names(merged_dt)[grep("\\.y$", names(merged_dt))]
 
-  cat("1. Calculating average expression and ATAC signal per gene...\n")
+  cat("Calculating average expression and ATAC signal per gene...\n")
 
   # Create a new summary data.table (plot_data) with 3 columns
   plot_data <- merged_dt[, .(
@@ -40,7 +40,7 @@ PrepareDataForScatterPlot <- function(merged_dt, genes_gr) {
     avg_atac_signal = rowMeans(.SD[, atac_cols, with = FALSE]) # Column 3: Average (all cells) accessibility for each gene
   )]
 
-  cat("2. Adding chromosome information...\n")
+  cat("Adding chromosome information...\n")
 
   # Create a data table matching each gene to its chromosome
   gene_location_map <- as.data.table(genes_gr)[, .(gene_id, seqnames)] # Extract "gene_id" and "seqnames" (chromosome name) columns from the gene GRanges object
