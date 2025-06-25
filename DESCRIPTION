@@ -17,6 +17,7 @@ Imports:
     GenomicRanges,
     S4Vectors,
     GenomeInfoDb,
-    rtracklayer
+    rtracklayer,
+    stats
 URL:https://github.com/beatricedanna/RProject.git
 BugReports: https://github.com/beatricedanna/RProject/issues
