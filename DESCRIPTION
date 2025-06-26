@@ -20,7 +20,14 @@ Imports:
     rtracklayer,
     stats,
     ggplot2,
-    gtools
+    gtools,
+    Seurat,
+    Signac,
+    SeuratObject
+Remotes: 
+    satijalab/seurat-object,  
+    satijalab/seurat,         
+    stuart-lab/signac
 URL: https://github.com/beatricedanna/RProject.git
 BugReports: https://github.com/beatricedanna/RProject/issues
 Suggests: 
@@ -29,3 +36,4 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+Bioconductor-Version: 3.18

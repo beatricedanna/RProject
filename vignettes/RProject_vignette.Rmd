@@ -3,68 +3,100 @@ title: "RProject_vignette"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{RProject_vignette}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
-# Introduction
+## Introduction
 
-This vignette explains how to use RProject package. 
-RProject package goal is to analyse Multiomics data and perform the following functions:
+This vignette explains how to use RProject package.\
 
-*Step 1: Matrix Conversion*
-**Function -> SparseToDataTable**
- - Use the RProject package to convert the sparse matrix into a full matrix and save the result as a data.table object
+## Installation and Environment setup
 
-*Step 2: Split Gene Expression and ATAC-seq Data*
-**Function -> ExtractData**
- - From the data.table object, separate:
-   - Gene expression data (rows labelled with Ensembl gene IDs)
-   - ATAC-seq peak data (rows labelled with genomic coordinates)
-   
-*Step 3: Summarize Data*
-- For each dataset (expression and peaks), compute the column-wise sum to produce:
-     *Step 3.1* 
-     **Function -> TotalExpressionPerGene**
-   - A single vector of total expression per gene
-     *Step 3.2* 
-     **Function -> TotalAccessibilityPerPeak**
-   - A single vector of total chromatin accessibility per peak region
+# Reproducible Analysis of RProject
 
-*Step 4: Create Genomic Ranges*
-**Function -> CreateGenomicRanges**
-- Convert both the summarized gene expression and peak data into GenomicRanges objects and add the summarized data as metadata to their respective GenomicRanges.
+This repository contains the R code and a fully reproducible computational environment for the analysis of single-cell multi-omic ATAC and RNA data.
 
-*Step 5: Gene Annotation for ATACseq data*
-**Function -> AnnotatePeaks**
-- Using the annotation file Homo_sapiens.GRCh38.114.gtf.gz:
-   - Create a GenomicRanges object only for protein-coding genes and only for gene features.
-   - Remap the ATAC-seq GenomicRanges to this object and attach the summarized peak data from step 4.
-   
-*Step 6: Finalize Expression Data*
-**Function -> FinalizeGeneExpressionGRanges**
-- Subset the expression GenomicRanges, step 4, to include only protein-coding genes and add gene symbol identifiers to the object.
+The entire software environment, including all specific package versions like Seurat v5 and Signac, has been encapsulated within a Docker image to ensure complete and effortless reproducibility.
 
-*Step 7: Data Normalization and Integration*
- *Step 7.1* 
- **Function -> NormalizeCPM**
-- Normalize both expression and ATAC-seq data using CPM:
-   - Divide each column by the column sum, multiply by 10^6, add a pseudo-count of 1, and apply log2.
-  *Step 7.2* 
-  **Function -> IntegrateAndSummarize**
-- Merge expression and ATAC data based on common genes.
-  *Step 7.3* 
-  **Function -> GenerateSummaryPlot**
-- Provide a summary table of the number of ATAC peaks that could not be merged and a plot of peak intensity distribution chromosome by chromosome. 
-- Provide a summary table of the genes which do not show association with ATAC peaks and plot their expression distribution chromosome by chromosome.
+### How to Access the Results and Repeat the Analysis
 
-*Step 8: Visualization*
-**Function -> PrepareDataForScatterPlot**
-**Function -> GenerateScatterPlot**
-- Generate a scatter plot using ggplot2:
-   - X-axis: log-transformed expression CPM
-   - Y-axis: log-transformed ATAC CPM
-- Generate a faceted plot from the same data dividing the plot in the 24 chromosomes.
+#### Prerequisites
+
+You must have [Docker](https://www.docker.com/get-started) installed and running on your system.
+
+#### **Option 1: View the Pre-computed Results (Easiest Method)**
+
+The analysis has been pre-run, and the final HTML report (the vignette) is included within the Docker image. You can run the image and copy the report to your local machine to view it.
+
+1.  **Pull the Docker Image from Docker Hub.**
+    Open your terminal and run:
+    ```bash
+    # Replace 'beatricedanna' with your Docker Hub ID if different
+    docker pull beatricedanna/rproject-analysis
+    ```
+
+2.  **Run a temporary container to copy the vignette.**
+    First, navigate to a directory on your computer where you want to save the report (e.g., your Desktop). Then, run this command:
+    ```bash
+    # This command copies the HTML file from the container to your current directory
+    docker run --rm --entrypoint "" beatricedanna/rproject-analysis cp /usr/local/lib/R/site-library/RProject/doc/RProject_vignette.html .
+    ```
+
+3.  **Open the HTML file.**
+    You will now find a file named `RProject_vignette.html` in the directory. Open it with any web browser to see the full analysis, code, and plots.
+
+#### **Option 2: Run the Analysis Interactively**
+
+If you wish to explore the environment or re-run the code yourself, you can start an interactive session inside the container.
+
+1.  **Pull the Docker Image** (if you haven't already).
+    ```bash
+    docker pull beatricedanna/rproject-analysis
+    ```
+
+2.  **Start an interactive container.**
+    ```bash
+    docker run -it --rm beatricedanna/rproject-analysis
+    ```
+    You will be dropped into an R session (`>`) inside the fully configured environment.
+
+3.  **Explore the package.**
+    From the R prompt, you can load the project's package and use its functions.
+    ```R
+    library(RProject)
+    
+    # You can now access all functions, for example:
+    # help(package = "RProject")
+    
+    # To view the vignette from within R:
+    browseVignettes("RProject")
+    ```
+
+#### (Advanced) Building the Image from Source
+
+If you wish to build the Docker image from scratch, you can clone this repository and run `docker build`.
+
+```bash
+git clone https://github.com/beatricedanna/RProject.git
+cd RProject
+docker build -t beatricedanna/rproject-analysis .
+```
+**Note:** The build process may be subject to GitHub API rate-limiting. If the build fails while installing dependencies from GitHub, you may need to [create a GitHub Personal Access Token (PAT)](https://github.com/settings/tokens/new) with `repo` scope and run the build command with your token:
+`docker build --build-arg GITHUB_PAT=your_token_here -t beatricedanna/rproject-analysis .`
+
+## **Project Workflow**
+RProject package goal is to analyse Multiomics data and perform the
+following functions:
+
+#### **Step 1: Matrix Conversion**
+
+**Function -\> SparseToDataTable**\
+- Use the RProject package to convert the sparse matrix into a full
+matrix and save the result as a data.table object.
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -77,8 +109,7 @@ knitr::opts_chunk$set(
 library(RProject)
 ```
 
-```{r make-scatter-plot, fig.width=12, fig.height=10}
-
+```{r step 1}
 library(data.table)
 library(Matrix)
 
@@ -98,6 +129,16 @@ cat("Sparse matrix dimension:", dim(mtx)[1], "features x", dim(mtx)[2], "barcode
 # To execute the function (Step 1):
 combined_dt <- SparseToDataTable(mtx, features, barcodes)
 
+```
+
+#### **Step 2: Split Gene Expression and ATAC-seq Data**
+
+**Function -\> ExtractData**\
+- From the data.table object, separate:\
+ - Gene expression data (rows labelled with Ensembl gene IDs)\
+ - ATAC-seq peak data (rows labelled with genomic coordinates)
+
+```{r step 2}
 # To execute the function (Step 2):
 results <- ExtractData(combined_dt)
 
@@ -108,13 +149,35 @@ atac_seq_dt <- results$atac_seq_dt
 # Check:
 print(gene_expression_dt[1:5, 1:5])
 print(atac_seq_dt[1:5, 1:5])
+```
 
+#### **Step 3: Summarize Data**
+
+For each dataset (expression and peaks), compute the column-wise sum to
+produce:\
+**Step 3.1**\
+**Function -\> TotalExpressionPerGene**\
+- A single vector of total expression per gene\
+**Step 3.2**\
+**Function -\> TotalAccessibilityPerPeak**\
+- A single vector of total chromatin accessibility per peak region
+
+```{r step 3}
 # To execute the function (Step 3.1):
 gene_vector <- TotalExpressionPerGene(gene_expression_dt)
 
 # To execute the function (Step 3.2):
 peaks_vector <- TotalAccessibilityPerPeak(atac_seq_dt)
+```
 
+#### **Step 4: Create Genomic Ranges**
+
+**Function -\> CreateGenomicRanges**\
+- Convert both the summarized gene expression and peak data into
+GenomicRanges objects and add the summarized data as metadata to their
+respective GenomicRanges.
+
+```{r step 4}
 # Load the libraries:
 library(GenomicRanges)
 library(ensembldb)
@@ -133,7 +196,18 @@ class(peaks_gr)
 as.data.frame(genes_gr[1:5])
 as.data.frame(peaks_gr[1:5])
 
+```
 
+#### **Step 5: Gene Annotation for ATACseq data**
+
+**Function -\> AnnotatePeaks**\
+- Using the annotation file *Homo_sapiens.GRCh38.114.gtf.gz*:\
+ - Create a GenomicRanges object only for protein-coding genes and only
+for gene features.\
+ - Remap the ATAC-seq GenomicRanges to this object and attach the
+summarized peak data from step 4.
+
+```{r step 5}
 # Load the libraries:
 library(rtracklayer)
 library(GenomicRanges)
@@ -146,8 +220,44 @@ full_gtf_gr <- rtracklayer::import(gtf_file)
 # To execute the function (Step 5):
 annotated_peaks_gr_final <- AnnotatePeaks(peaks_gr, full_gtf_gr)
 
+```
+
+#### **Step 6: Finalize Expression Data**
+
+**Function -\> FinalizeGeneExpressionGRanges**\
+- Subset the expression GenomicRanges,step 4, to include only
+protein-coding genes and add gene symbol identifiers to the object.
+
+```{r step 6}
+
 # To execute the function (Step 6):
 protein_coding_gex <- FinalizeGeneExpressionGRanges(genes_gr, full_gtf_gr)
+
+```
+
+#### **Step 7: Data Normalization and Integration**
+
+**Step 7.1**\
+**Function -\> NormalizeCPM**\
+ - Normalize both expression and ATAC-seq data using CPM:\
+ - Divide each column by the column sum, multiply by 10\^6, add a
+pseudo-count of 1, and apply log2.
+
+**Step 7.2**\
+**Function -\> IntegrateAndSummarize**\
+- Merge expression and ATAC data based on common genes.
+
+**Step 7.3**\
+**Function -\> GenerateSummaryPlot**\
+- Provide a summary table of the number of ATAC peaks that could not be
+merged and a plot of peak intensity distribution chromosome by
+chromosome.\
+- Provide a summary table of the genes which do not show association
+with ATAC peaks and plot their expression distribution chromosome by
+chromosome.
+
+```{r make-summary-plot, fig.width=10, fig.height=8}
+
 
 # To execute the function (Step7.1):
 final_normalized_gex_dt <- NormalizeCPM(gene_expression_dt)
@@ -161,7 +271,7 @@ integration_results <- IntegrateAndSummarize(
   protein_coding_gex
   )
 
-###DEBUG###
+# ------DEBUG------
 
 cat("FILTER AND STANDARDIZATION OF CHROMOSOME NAMES\n\n")
 
@@ -200,7 +310,7 @@ print(unique(seqnames(peaks_gr_filtrato)))
 cat("\nUnique chromosomes in genes:\n")
 print(unique(seqnames(genes_gr_filtrato)))
 
-###END DEBUG###
+#------END DEBUG------
 
 # Load the libraries:
 library(ggplot2)
@@ -217,6 +327,20 @@ peak_intensity_plot <- summary_plots$peak_intensity_plot
 print(peak_intensity_plot)
 unassociated_gex_plot <- summary_plots$unassociated_gex_plot
 print(unassociated_gex_plot)
+
+```
+
+#### **Step 8: Visualization**
+
+**Function -\> PrepareDataForScatterPlot**\
+**Function -\> GenerateScatterPlot**\
+- Generate a scatter plot using ggplot2:\
+ - X-axis: log-transformed expression CPM\
+ - Y-axis: log-transformed ATAC CPM\
+- Generate a faceted plot from the same data dividing the plot in the 24
+chromosomes.
+
+```{r make-scatter-plot, fig.width=10, fig.height=8}
 
 # Load the libraries:
 library(gtools)
